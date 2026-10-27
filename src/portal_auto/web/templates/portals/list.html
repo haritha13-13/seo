@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, row_actions with context %}
+{% block title %}Portals{% endblock %}
+{% block content %}
+<h1>Portals</h1>
+<p class="actions"><a class="button primary" href="{{ url_for('portals.create') }}">New Portal</a></p>
+{% if portals %}
+<table>
+  <thead><tr><th>Name</th><th>URL</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>
+  {% for portal in portals %}
+    <tr>
+      <td>{{ portal.name }}</td>
+      <td>{{ portal.url }}</td>
+      <td>{{ status_badge(portal.active) }}</td>
+      <td class="actions">
+        <a class="button" href="{{ url_for('portals.edit', portal_id=portal.id) }}">Edit</a>
+        <a class="button" href="{{ url_for('credentials.index', portal_id=portal.id) }}">Credentials</a>
+        {{ row_actions(portal.active, url_for('portals.set_active', portal_id=portal.id), url_for('portals.delete', portal_id=portal.id)) }}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No Portals yet. <a href="{{ url_for('portals.create') }}">Create the first Portal</a> to get started.</p>
+{% endif %}
+{% endblock %}

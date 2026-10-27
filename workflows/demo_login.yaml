@@ -1,0 +1,8 @@
+name: demo_login
+url: https://the-internet.herokuapp.com/login
+headless: true
+steps:
+  - Enter the username {{ENV:DEMO_USER}} in the username field
+  - Enter the password {{ENV:DEMO_PASS}} in the password field
+  - Click the Login button
+  - Verify the page shows a message containing "You logged into a secure area!"

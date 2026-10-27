@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Executor{% endblock %}
+{% macro options(items, selected) %}
+  <option value="">-- choose --</option>
+  {% for item in items %}
+    <option value="{{ item.id }}" {% if selected and selected.id == item.id %}selected{% endif %}>{{ item.name or item.label }}</option>
+  {% endfor %}
+{% endmacro %}
+{% block content %}
+<h1>Executor</h1>
+{% if not chosen.portal_options %}
+<p class="empty">No active Portals yet. <a href="{{ url_for('portals.create') }}">Create a Portal</a> (or activate one on the <a href="{{ url_for('portals.index') }}">Portals</a> page) to get started.</p>
+{% endif %}
+<form method="get" class="card stack">
+  <label>Portal
+    <select name="portal_id">{{ options(chosen.portal_options, chosen.portal) }}</select>
+  </label>
+  {% if chosen.portal %}
+  <label>Workflow
+    <select name="workflow_id">{{ options(chosen.workflow_options, chosen.workflow) }}</select>
+  </label>
+  <label>Credential
+    <select name="credential_id">{{ options(chosen.credential_options, chosen.credential) }}</select>
+  </label>
+  {% endif %}
+  <div class="actions"><button type="submit">Select</button></div>
+</form>
+{% if chosen.portal and not chosen.workflow_options %}
+<p class="empty">{{ chosen.portal.name }} has no active Workflows. <a href="{{ url_for('workflows.create', portal_id=chosen.portal.id) }}">Create a Workflow</a> for it first.</p>
+{% endif %}
+{% if chosen.portal and not chosen.credential_options %}
+<p class="empty">
+  {% if chosen.workflow and chosen.workflow.starts_signed_in %}{{ chosen.workflow.name }} starts signed in, so it needs an active Credential that has a saved session.
+  {% elif chosen.workflow %}{{ chosen.workflow.name }} needs an active Credential that has a password.
+  {% else %}{{ chosen.portal.name }} has no active Credentials.{% endif %}
+  <a href="{{ url_for('credentials.create', portal_id=chosen.portal.id) }}">Add or edit a Credential</a> on the Credentials screen.
+</p>
+{% endif %}
+
+{% if chosen.complete %}
+<section class="card">
+  <h2>Summary</h2>
+  <p>Portal: <strong>{{ chosen.portal.name }}</strong> <span class="muted">{{ chosen.portal.url }}</span></p>
+  <p>Workflow: <strong>{{ chosen.workflow.name }}</strong></p>
+  <ol>
+    {% for step in chosen.workflow.steps %}<li>{{ step.instruction }}</li>{% endfor %}
+  </ol>
+  {% if lacks_verify %}
+    <p class="flash flash-warning">These Steps have no "verify" Step; a Run cannot confirm its outcome.</p>
+  {% endif %}
+  {% set credential = chosen.credential %}
+  <p>Credential: <strong>{{ credential.label }}</strong>, username {{ credential.username }}, password {{ masked_password if credential.has_password else "—" }}</p>
+  <p>{% if credential.has_session %}Saved session: {{ credential.session_source }}{% if credential.session_updated_at %} {{ credential.session_updated_at|ago }}{% endif %}{% else %}No saved session{% endif %}</p>
+  {% if chosen.workflow.starts_signed_in %}<p>This Run starts from the saved session (no username/password typing).</p>{% endif %}
+  {% if last_run %}
+    <p class="{{ 'flash flash-warning' if last_run.status == 'failed' else '' }}">
+      <a href="{{ url_for('runs.detail', run_id=last_run.id) }}">Last run {% if last_run.status in ('queued', 'generating', 'running') %}is {{ last_run.status }}{% else %}{{ last_run.status }} {{ (last_run.finished_at or last_run.queued_at)|ago }}{% endif %}</a>.
+      {% if last_run.status == 'failed' %}Check it before replaying; the stored script may be broken (tick Force regeneration to rebuild it).{% endif %}
+    </p>
+  {% else %}
+    <p class="muted">Never run.</p>
+  {% endif %}
+  {% if script %}
+    <p>Current Script Version: <span class="badge">v{{ script.version }}</span> will be replayed.</p>
+  {% else %}
+    <p>No Current Script Version: a Generation will happen first.</p>
+  {% endif %}
+</section>
+
+<form method="post" enctype="multipart/form-data" class="card stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="portal_id" value="{{ chosen.portal.id }}">
+  <input type="hidden" name="workflow_id" value="{{ chosen.workflow.id }}">
+  <input type="hidden" name="credential_id" value="{{ chosen.credential.id }}">
+  {% if input_form.error %}
+    <p class="flash flash-error">The Steps of this Workflow have invalid placeholders, so it cannot run until they are fixed on the Workflows screen: {{ input_form.error }}</p>
+  {% endif %}
+  {% if input_form.fields %}
+  <fieldset class="inputs">
+    <legend>Inputs</legend>
+    {% for field in input_form.fields %}
+      <label>
+        <span>{{ field.label }} <span class="muted input-kind">{{ field.kind.name }}</span></span>
+        {% if field.kind.is_upload %}
+          <input type="file" name="{{ field.field_name }}" accept="{{ field.kind.accept }}" required>
+        {% else %}
+          <input type="text" name="{{ field.field_name }}" value="{{ field.value }}" maxlength="{{ max_text_chars }}" required>
+        {% endif %}
+      </label>
+    {% endfor %}
+  </fieldset>
+  {% endif %}
+  <label class="inline"><input type="checkbox" name="show_browser" value="1"> Show browser</label>
+  <label class="inline"><input type="checkbox" name="force_generate" value="1"{% if chosen.force_generate %} checked{% endif %}> Force regeneration</label>
+  <label class="inline"><input type="checkbox" name="verified" value="1"> I have verified these details (Verification)</label>
+  <div class="actions"><button type="submit" class="primary">Execute</button></div>
+</form>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,6 @@
+name: python_docs
+url: https://www.python.org
+steps:
+- Click the **Documentation** link in the top navigation bar.
+- "Verify that the page loads with the heading **Python Docs** and shows links such\
+  \ as **Browse Python\u202F3.15.2 Documentation** (or similar documentation navigation)."

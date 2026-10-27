@@ -1,0 +1,56 @@
+:root {
+  --bg: #f6f7f9; --surface: #fff; --text: #1d2330; --muted: #5d6677; --border: #d9dde5;
+  --primary: #2457d6; --primary-text: #fff; --danger: #c0392b; --ok: #1e8449; --warn: #b9770e;
+  --radius: 6px; --gap: 1rem;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px/1.5 system-ui, sans-serif; background: var(--bg); color: var(--text); }
+main { max-width: 64rem; margin: 0 auto; padding: var(--gap); }
+.topbar { display: flex; gap: 2rem; align-items: center; padding: .75rem var(--gap); background: var(--surface); border-bottom: 1px solid var(--border); }
+.brand { font-weight: 700; }
+.topbar nav { display: flex; gap: 1rem; }
+.topbar a { color: var(--muted); text-decoration: none; padding: .25rem 0; }
+.topbar a[aria-current="page"] { color: var(--primary); border-bottom: 2px solid var(--primary); }
+h1 { font-size: 1.4rem; margin: 0 0 var(--gap); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--gap); margin-bottom: var(--gap); }
+table { width: 100%; border-collapse: collapse; background: var(--surface); }
+th, td { text-align: left; padding: .5rem .75rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: .85rem; }
+form.stack { display: grid; gap: .75rem; max-width: 34rem; }
+label { display: grid; gap: .25rem; font-weight: 600; font-size: .9rem; }
+input[type=text], input[type=url], input[type=password], select, textarea { font: inherit; padding: .45rem .6rem; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; }
+textarea { min-height: 5rem; }
+label.inline { display: flex; gap: .5rem; align-items: center; font-weight: 400; }
+button, .button { font: inherit; padding: .45rem .9rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; text-decoration: none; display: inline-block; }
+button.primary, .button.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-text); }
+button.danger { color: var(--danger); }
+button:disabled { opacity: .5; cursor: not-allowed; }
+.actions { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+.flash { padding: .6rem .9rem; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); }
+.flash-error { border-color: var(--danger); color: var(--danger); }
+.flash-success { border-color: var(--ok); color: var(--ok); }
+.flash-warning { border-color: var(--warn); color: var(--warn); }
+.badge { display: inline-block; padding: .05rem .5rem; border-radius: 999px; font-size: .8rem; border: 1px solid var(--border); }
+.badge-succeeded { color: var(--ok); border-color: var(--ok); }
+.badge-failed { color: var(--danger); border-color: var(--danger); }
+.badge-queued, .badge-generating, .badge-running { color: var(--warn); border-color: var(--warn); }
+.badge-inactive { color: var(--muted); }
+pre.log { background: #11151d; color: #e6e9ef; padding: var(--gap); border-radius: var(--radius); overflow: auto; max-height: 28rem; white-space: pre-wrap; }
+.muted { color: var(--muted); }
+@media (max-width: 40rem) { .topbar { flex-direction: column; align-items: flex-start; gap: .5rem; } }
+/* runs screen */
+main img { max-width: 100%; border: 1px solid var(--border); border-radius: var(--radius); }
+/* credentials session */
+.badge-unusable { color: var(--warn); border-color: var(--warn); }
+/* capture */
+.capture-panel { padding-bottom: var(--gap); border-bottom: 1px solid var(--border); }
+/* starts signed in */
+.badge-signed-in { background: var(--primary); color: #fff; }
+/* inputs */
+fieldset.inputs { display: grid; gap: .75rem; border: 1px solid var(--border); border-radius: var(--radius); padding: .75rem var(--gap); margin: 0; }
+fieldset.inputs legend { font-weight: 600; padding: 0 .25rem; }
+fieldset.inputs input[type=file] { font: inherit; }
+.input-kind { font-weight: 400; font-size: .8rem; }
+.stored-inputs ul { margin: 0; padding-left: 1.25rem; }
+.steps-help { text-align: left; padding-bottom: .5rem; }
+table.inputs-used td { overflow-wrap: anywhere; }

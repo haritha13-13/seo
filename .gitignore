@@ -1,0 +1,15 @@
+.env
+venv/
+__pycache__/
+*.egg-info/
+artifacts/*
+!artifacts/.gitkeep
+auth.json
+portal_auto.db*
+portal_auto.db.bak-*
+node_modules/
+test-results/
+.claude/
+generated/
+test.spec.js
+test2.spec.js

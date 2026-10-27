@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit Portal" if portal else "New Portal" }}{% endblock %}
+{% block content %}
+<h1>{{ "Edit Portal" if portal else "New Portal" }}</h1>
+<form method="post" class="card stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Name <input type="text" name="name" value="{{ values.name }}" required></label>
+  <label>Start URL <input type="url" name="url" value="{{ values.url }}" required></label>
+  <label>Extra hosts <span class="muted">(optional, comma separated)</span>
+    <input type="text" name="extra_hosts" value="{{ values.extra_hosts }}" placeholder="adobe.com">
+  </label>
+  <p class="muted">Other sites the agent may visit while generating a script, for example the single sign-on
+    provider the Sign in button redirects to. Subdomains are included. Only declare hosts you trust.</p>
+  <div class="actions">
+    <button type="submit" class="primary">Save</button>
+    <a class="button" href="{{ url_for('portals.index') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

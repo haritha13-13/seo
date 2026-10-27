@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Delete Workflow{% endblock %}
+{% block content %}
+<h1>Delete Workflow {{ workflow.name }}</h1>
+<section class="card">
+  {% if usage.active_runs %}
+    <p class="flash flash-error">A Run of this Workflow is in progress. Wait for it to finish before deleting the Workflow.</p>
+    <p><a class="button" href="{{ url_for('workflows.index') }}">Back to Workflows</a></p>
+  {% else %}
+    <p>This will permanently delete the Workflow and its Steps{% if usage.runs or usage.script_versions %}, together with:{% endif %}</p>
+    {% if usage.runs or usage.script_versions %}
+    <ul>
+      {% if usage.runs %}<li>{{ usage.runs }} Run{{ "s" if usage.runs != 1 }} and their Run Logs</li>{% endif %}
+      {% if usage.script_versions %}<li>{{ usage.script_versions }} stored script{{ "s" if usage.script_versions != 1 }}</li>{% endif %}
+    </ul>
+    {% endif %}
+    <p><strong>This cannot be undone.</strong> To keep the history, deactivate the Workflow instead.</p>
+    <form method="post" class="actions">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="confirm" value="1">
+      <button type="submit" class="danger">Delete Workflow</button>
+      <a class="button" href="{{ url_for('workflows.index') }}">Cancel</a>
+    </form>
+  {% endif %}
+</section>
+{% endblock %}

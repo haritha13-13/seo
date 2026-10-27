@@ -1,0 +1,20 @@
+{
+  "name": "runo",
+  "version": "1.0.0",
+  "description": "Describe a workflow on a web portal once, in plain steps. An LLM agent carries it out in a real browser the first time and records a reusable Playwright script. Every later run replays that script: no LLM, no tokens, deterministic. Every run is logged.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  }
+}

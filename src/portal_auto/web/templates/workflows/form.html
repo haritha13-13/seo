@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit Workflow" if workflow else "New Workflow" }}{% endblock %}
+{% block content %}
+<h1>{{ "Edit Workflow" if workflow else "New Workflow" }}</h1>
+{% if not workflow and not portals %}
+<p class="empty">There is no active Portal yet. <a href="{{ url_for('portals.create') }}">Create a Portal</a> before adding a Workflow.</p>
+{% endif %}
+{% if workflow %}
+<p>
+  Current Script Version:
+  {% if script %}<span class="badge">Version {{ script.version }}</span>
+  {% else %}<span class="badge badge-inactive">None</span> <span class="muted">(a Generation happens on the next Run)</span>{% endif %}
+</p>
+<section class="card stored-inputs">
+  <h2>Inputs this Workflow asks for at run time</h2>
+  {% if stored_inputs.error %}
+    <p class="flash flash-error">{{ stored_inputs.error }}</p>
+  {% elif stored_inputs.specs %}
+    <ul>
+    {% for spec in stored_inputs.specs %}<li>{{ spec.name }} <span class="muted input-kind">{{ spec.kind }}</span></li>{% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">None</p>
+  {% endif %}
+</section>
+{% endif %}
+<form method="post" class="card stack">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if workflow %}
+    <p>Portal: <strong>{{ workflow.portal.name }}</strong></p>
+  {% else %}
+    <label>Portal
+      <select name="portal_id" required>
+        <option value="">Choose a Portal</option>
+        {% for portal in portals %}
+          <option value="{{ portal.id }}" {% if draft.portal_id == portal.id %}selected{% endif %}>{{ portal.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  {% endif %}
+  <label>Name <input type="text" name="name" value="{{ draft.name }}" required></label>
+  <label class="inline"><input type="checkbox" name="active" value="1" {% if draft.active %}checked{% endif %}> Active</label>
+  <label class="inline"><input type="checkbox" name="starts_signed_in" value="1" {% if draft.starts_signed_in %}checked{% endif %}> Starts signed in</label>
+  <p class="muted">Steps assume the browser is already signed in; the Run loads the Credential's saved session instead of typing a username and password.</p>
+
+  <div class="actions">
+    <button type="submit" name="action" value="save" class="primary">Save</button>
+  </div>
+
+  <table>
+    <caption class="muted steps-help">
+      Steps run in this order. Use {{ '{{username}}' }} and {{ '{{password}}' }} for the Credential.
+      Any other placeholder is an Input asked for on the Executor at each Run:
+      {{ '{{name}}' }} text, {{ '{{name:file}}' }} any file, {{ '{{name:image}}' }} an image.
+      Names use letters, digits and underscores and start with a letter.
+    </caption>
+    <thead><tr><th>#</th><th>Step</th><th>Row</th></tr></thead>
+    <tbody>
+    {% for instruction in draft.steps %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td><textarea name="step" aria-label="Step {{ loop.index }}" rows="2">{{ instruction }}</textarea></td>
+        <td class="actions">
+          <button type="submit" name="action" value="up:{{ loop.index0 }}" aria-label="Move Step {{ loop.index }} up" {% if loop.first %}disabled{% endif %}>Up</button>
+          <button type="submit" name="action" value="down:{{ loop.index0 }}" aria-label="Move Step {{ loop.index }} down" {% if loop.last %}disabled{% endif %}>Down</button>
+          <button type="submit" name="action" value="remove:{{ loop.index0 }}" class="danger" aria-label="Remove Step {{ loop.index }}">Remove</button>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="actions">
+    <button type="submit" name="action" value="add">Add Step</button>
+    <button type="submit" name="action" value="save" class="primary">Save</button>
+    <a class="button" href="{{ url_for('workflows.index') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

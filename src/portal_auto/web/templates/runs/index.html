@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Runs{% endblock %}
+{% block content %}
+<h1>Runs</h1>
+<form method="get" class="card actions">
+  <label>Portal
+    <select name="portal_id">
+      <option value="">All</option>
+      {% for portal in portals %}<option value="{{ portal.id }}" {% if portal.id == portal_id %}selected{% endif %}>{{ portal.name }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Workflow
+    <select name="workflow_id">
+      <option value="">All</option>
+      {% for workflow in workflows %}<option value="{{ workflow.id }}" {% if workflow.id == workflow_id %}selected{% endif %}>{{ workflow.name }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Status
+    <select name="status">
+      <option value="">All</option>
+      {% for name in statuses %}<option value="{{ name }}" {% if name == status %}selected{% endif %}>{{ name }}</option>{% endfor %}
+    </select>
+  </label>
+  <button type="submit">Filter</button>
+</form>
+{% if rows %}
+<table>
+  <thead><tr><th>Run</th><th>Portal</th><th>Workflow</th><th>Credential</th><th>Status</th><th>Script Version</th><th>Started</th><th>Finished</th><th>Duration</th></tr></thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      <td><a href="{{ url_for('runs.detail', run_id=row.run.id) }}">#{{ row.run.id }}</a></td>
+      <td>{{ row.portal_name }}</td>
+      <td>{{ row.workflow_name }}</td>
+      <td>{{ row.run.credential_label }}{% if row.run.used_session %} <span class="muted">signed-in session</span>{% endif %}</td>
+      <td><span class="badge badge-{{ row.run.status }}">{{ row.run.status }}</span>{% if row.run.publication_status == "published" %} <span class="badge badge-published">Published</span>{% endif %}</td>
+      <td>{% if row.script_version %}v{{ row.script_version }}{% endif %}</td>
+      <td>{{ row.run.started_at|utc }}</td>
+      <td>{{ row.run.finished_at|utc }}</td>
+      <td>{{ row.duration }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+{% if portal_id or workflow_id or status %}<p class="empty">No Runs match these filters.</p>{% else %}<p class="empty">No Runs yet. Start one from the <a href="{{ url_for('executor.index') }}">Executor</a>.</p>{% endif %}
+{% endif %}
+{% endblock %}

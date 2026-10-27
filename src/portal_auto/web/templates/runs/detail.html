@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Run #{{ row.run.id }}{% endblock %}
+{% block head %}{% if row.active %}<meta http-equiv="refresh" content="{{ refresh_seconds }}">{% endif %}{% endblock %}
+{% block content %}
+<h1>Run #{{ row.run.id }} <span class="badge badge-{{ row.run.status }}">{{ row.run.status }}</span></h1>
+<section class="card">
+  <p>{{ row.portal_name }} / {{ row.workflow_name }}</p>
+  <p>Credential: {{ row.run.credential_label }}{% if row.run.used_session %} <span class="muted">signed-in session</span>{% endif %}</p>
+  <p>Script Version: {% if row.script_version %}v{{ row.script_version }}{% else %}<span class="muted">none yet</span>{% endif %}</p>
+  <p>Queued: {{ row.run.queued_at|utc }} · Started: {{ row.run.started_at|utc("-") }} · Finished: {{ row.run.finished_at|utc("-") }}{% if row.duration %} · Duration: {{ row.duration }}{% endif %}</p>
+  {% if advice %}<p class="flash flash-error"><strong>{{ advice.hint }}</strong></p>{% endif %}
+  {% if row.run.error %}<p class="flash flash-error">{{ row.run.error }}</p>{% endif %}
+</section>
+{% if row.run.final_page_url %}
+<section class="card result">
+  <h2>Published page</h2>
+  <p><a href="{{ row.run.final_page_url }}" target="_blank" rel="noopener noreferrer">{{ row.run.final_page_url }}</a></p>
+  {% set status_labels = {"published": "Published", "not_public": "Not publicly accessible", "unreachable": "Could not check"} %}
+  {% if row.run.publication_status %}<p class="publication publication-{{ row.run.publication_status }}"><strong>Status: {{ status_labels[row.run.publication_status] }}</strong></p>{% endif %}
+  <p class="muted">The address of the page this Run ended on, opened without signing in to check it is public.</p>
+</section>
+{% endif %}
+{% if inputs_used %}
+<section class="card">
+  <h2>Inputs used</h2>
+  <table class="inputs-used">
+    <thead><tr><th>Input</th><th>Kind</th><th>Value or file name</th></tr></thead>
+    <tbody>
+    {% for used in inputs_used %}
+      <tr><td>{{ used.name }}</td><td>{{ used.kind }}</td><td>{{ used.shown }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+<h2>Run Log</h2>
+<pre class="log">{{ row.run.output }}</pre>
+{% if row.run.screenshot_path %}
+  <h2>Failure screenshot</h2>
+  <img src="{{ url_for('runs.screenshot', run_id=row.run.id) }}" alt="Failure screenshot for Run #{{ row.run.id }}">
+{% endif %}
+{% if advice and advice.offer_regenerate %}
+<form method="post" action="{{ url_for('runs.regenerate', run_id=row.run.id) }}" class="actions">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="primary">Regenerate script</button>
+</form>
+{% endif %}
+<p><a href="{{ url_for('runs.index') }}">Back to Runs</a></p>
+{% endblock %}

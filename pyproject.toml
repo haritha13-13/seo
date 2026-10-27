@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "portal-auto"
+version = "0.1.0"
+description = "Explore a portal workflow once with an LLM agent, then replay it as a standalone Playwright script."
+requires-python = ">=3.10"
+dependencies = [
+    "crewai",
+    "playwright",
+    "pydantic>=2",
+    "pyyaml",
+    "python-dotenv",
+    "jinja2",
+    "flask>=3",
+    "sqlalchemy>=2",
+    "psycopg[binary]>=3",
+    "alembic",
+    "cryptography",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+portal-auto = "portal_auto.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/portal_auto"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-m 'not e2e and not chrome'"
+markers = [
+    "e2e: real browser + LLM + network; run with -m e2e",
+    "chrome: launches real Google Chrome; run with -m chrome",
+]

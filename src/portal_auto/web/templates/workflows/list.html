@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_badge, row_actions with context %}
+{% block title %}Workflows{% endblock %}
+{% block content %}
+<h1>Workflows</h1>
+<p class="actions"><a class="button primary" href="{{ url_for('workflows.create') }}">New Workflow</a></p>
+{% if workflows %}
+<table>
+  <thead><tr><th>Name</th><th>Portal</th><th>Steps</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody>
+  {% for workflow in workflows %}
+    <tr>
+      <td>{{ workflow.name }}{% if workflow.starts_signed_in %} <span class="badge badge-signed-in">signed in</span>{% endif %}</td>
+      <td>{{ workflow.portal.name }}</td>
+      <td>{{ workflow.steps|length }}</td>
+      <td>{{ status_badge(workflow.active) }}</td>
+      <td class="actions">
+        <a class="button" href="{{ url_for('workflows.edit', workflow_id=workflow.id) }}">Edit</a>
+        {{ row_actions(workflow.active, url_for('workflows.set_active', workflow_id=workflow.id), url_for('workflows.delete', workflow_id=workflow.id)) }}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No Workflows yet. <a href="{{ url_for('workflows.create') }}">Create the first Workflow</a> (you need an active Portal).</p>
+{% endif %}
+{% endblock %}

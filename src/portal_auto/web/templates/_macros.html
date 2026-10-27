@@ -1,0 +1,16 @@
+{% macro status_badge(active) %}
+  {% if active %}<span class="badge">Active</span>{% else %}<span class="badge badge-inactive">Inactive</span>{% endif %}
+{% endmacro %}
+
+{# The Activate/Deactivate and Delete row actions shared by every list page. #}
+{% macro row_actions(active, active_url, delete_url) %}
+  <form method="post" action="{{ active_url }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="active" value="{{ 0 if active else 1 }}">
+    <button type="submit">{{ "Deactivate" if active else "Activate" }}</button>
+  </form>
+  <form method="post" action="{{ delete_url }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="danger">Delete</button>
+  </form>
+{% endmacro %}
